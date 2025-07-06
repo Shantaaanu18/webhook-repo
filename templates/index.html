@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>GitHub Webhook Events</title>
+  <style>
+    body { font-family: Arial, sans-serif; padding: 20px; background: #f4f4f4; }
+    h1 { color: #333; }
+    .event { background: white; margin: 10px 0; padding: 10px 15px; border-radius: 5px; box-shadow: 0 1px 3px rgba(0,0,0,0.1); }
+  </style>
+</head>
+<body>
+  <h1>Latest GitHub Events</h1>
+  <div id="events">Loading...</div>
+
+  <script>
+    function formatEvent(e) {
+      if (e.type === "push") {
+        return `"${e.author}" pushed to "${e.to_branch}" on ${e.timestamp}`;
+      } else if (e.type === "pull_request") {
+        return `"${e.author}" submitted a pull request from "${e.from_branch}" to "${e.to_branch}" on ${e.timestamp}`;
+      } else if (e.type === "merge") {
+        return `"${e.author}" merged branch "${e.from_branch}" to "${e.to_branch}" on ${e.timestamp}`;
+      } else {
+        return "";
+      }
+    }
+
+    async function fetchEvents() {
+      const res = await fetch('/events');
+      const data = await res.json();
+      document.getElementById('events').innerHTML =
+        data.map(e => `<div class="event">${formatEvent(e)}</div>`).join('');
+    }
+
+    fetchEvents();
+    setInterval(fetchEvents, 15000);
+  </script>
+</body>
+</html>
