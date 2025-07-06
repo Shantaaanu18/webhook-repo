@@ -19,17 +19,21 @@ def fetch_events():
 
 @app.route("/webhook", methods=["POST"])
 def webhook():
-    # Verify content type
+    event_type = request.headers.get("X-GitHub-Event")
+
+    # Handle GitHub ping event (sent when webhook is created)
+    if event_type == "ping":
+        print("Received ping event from GitHub")
+        return "Pong", 200
+
+    # Only accept JSON for real events
     if not request.is_json:
         return "Content-Type must be application/json", 400
-    
-    event_type = request.headers.get("X-GitHub-Event")
-    payload = request.get_json()
 
+    payload = request.get_json()
     if not payload:
         return "Invalid payload", 400
 
-    # Log incoming webhook for debugging
     print(f"Received {event_type} event from GitHub")
 
     try:
